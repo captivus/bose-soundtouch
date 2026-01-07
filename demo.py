@@ -3,6 +3,7 @@ Demo script to test the bose-soundtouch library against a real device.
 
 Usage:
     uv run python demo.py <speaker-ip>
+    uv run python demo.py <speaker-ip> --safe  # Mask sensitive info
 
 Example:
     uv run python demo.py 192.168.1.100
@@ -21,6 +22,71 @@ from bose_soundtouch import (
 )
 
 
+# Global flag for safe mode
+_safe_mode = False
+
+
+def mask_ip(ip: str | None) -> str:
+    """Mask an IP address for safe display."""
+    if not ip or not _safe_mode:
+        return ip or ""
+    # 192.168.1.100 -> 192.168.x.xxx
+    parts = ip.split(".")
+    if len(parts) == 4:
+        return f"{parts[0]}.{parts[1]}.x.xxx"
+    return "x.x.x.x"
+
+
+def mask_mac(mac: str | None) -> str:
+    """Mask a MAC address for safe display."""
+    if not mac or not _safe_mode:
+        return mac or ""
+    # AABBCCDDEEFF -> XXXX...EEFF (show last 4)
+    if len(mac) >= 4:
+        return f"XXXX...{mac[-4:]}"
+    return "XX:XX:XX:XX:XX:XX"
+
+
+def mask_device_id(device_id: str | None) -> str:
+    """Mask a device ID for safe display."""
+    if not device_id or not _safe_mode:
+        return device_id or ""
+    # Same as MAC - show last 4
+    if len(device_id) >= 4:
+        return f"XXXX...{device_id[-4:]}"
+    return "XXXXXXXX"
+
+
+def mask_email(text: str | None) -> str:
+    """Mask email addresses in text for safe display."""
+    if not text or not _safe_mode:
+        return text or ""
+    # Check if it looks like an email
+    if "@" in text:
+        parts = text.split("@")
+        if len(parts) == 2:
+            # user@domain.com -> u***@domain.com
+            user = parts[0]
+            domain = parts[1]
+            if len(user) > 1:
+                return f"{user[0]}***@{domain}"
+            return f"***@{domain}"
+    return text
+
+
+def mask_source_name(name: str | None) -> str:
+    """Mask source names that might contain sensitive info."""
+    if not name or not _safe_mode:
+        return name or ""
+    # Check if it looks like an email
+    if "@" in name:
+        return mask_email(name)
+    # Check if it ends with "UserName" - these are placeholders, leave them
+    if name.endswith("UserName"):
+        return name
+    return name
+
+
 def separator(title: str) -> None:
     """Print a section separator."""
     print()
@@ -35,6 +101,8 @@ def wait_for_user(prompt: str = "Press Enter to continue...") -> None:
 
 
 def main() -> None:
+    global _safe_mode
+
     parser = argparse.ArgumentParser(
         description="Demo script to test the bose-soundtouch library against a real device."
     )
@@ -42,10 +110,17 @@ def main() -> None:
         "host",
         help="IP address or hostname of the SoundTouch speaker",
     )
+    parser.add_argument(
+        "--safe",
+        action="store_true",
+        help="Mask sensitive information (IPs, MACs, device IDs) for recording",
+    )
     args = parser.parse_args()
 
+    _safe_mode = args.safe
+
     print("Bose SoundTouch Library Demo")
-    print(f"Target: {args.host}")
+    print(f"Target: {mask_ip(args.host)}")
 
     try:
         with SoundTouch(host=args.host, timeout=10.0) as speaker:
@@ -56,12 +131,12 @@ def main() -> None:
             info = speaker.get_info()
             print(f"Name:      {info.name}")
             print(f"Type:      {info.type}")
-            print(f"Device ID: {info.device_id}")
+            print(f"Device ID: {mask_device_id(info.device_id)}")
 
             if info.network_info:
                 print("Network:")
                 for net in info.network_info:
-                    print(f"  {net.type}: {net.ip_address} ({net.mac_address})")
+                    print(f"  {net.type}: {mask_ip(net.ip_address)} ({mask_mac(net.mac_address)})")
 
             if info.components:
                 print("Components:")
@@ -84,7 +159,7 @@ def main() -> None:
             for src in sources.items:
                 status = "READY" if src.status == SourceStatus.READY else "UNAVAILABLE"
                 name = src.display_name or src.source
-                print(f"  - {name}: {status}")
+                print(f"  - {mask_source_name(name)}: {status}")
 
             # ============ PRESETS ============
             separator("4. Presets")
