@@ -1,6 +1,6 @@
 [project]
 name = "bose-soundtouch"
-version = "0.1.2"
+dynamic = ["version"]
 description = "Python library for controlling Bose SoundTouch speakers via REST API"
 authors = [
     { name = "captivus", email = "366332+captivus@users.noreply.github.com" }
@@ -25,12 +25,16 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "hatch-vcs>=0.5.0",
     "pytest>=9.0.2",
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bose_soundtouch"]
