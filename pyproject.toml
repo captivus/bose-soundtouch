@@ -1,7 +1,10 @@
 [project]
 name = "bose-soundtouch"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python library for controlling Bose SoundTouch speakers via REST API"
+authors = [
+    { name = "captivus", email = "366332+captivus@users.noreply.github.com" }
+]
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

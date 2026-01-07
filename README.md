@@ -4,7 +4,7 @@ A Python library for controlling Bose SoundTouch speakers via the local REST API
 
 ## Background
 
-On January 7, 2026, Bose announced that cloud support for SoundTouch products will end on May 6, 2026. After this date:
+On January 7, 2026, [Bose announced](https://www.bose.com/soundtouch-end-of-life) that cloud support for SoundTouch products will end on May 6, 2026. After this date:
 
 **What will continue to work:**
 - Streaming via Bluetooth, AirPlay, Spotify Connect, and AUX
