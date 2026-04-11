@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-04-04T16:09:00.884198339Z"
+exclude-newer = "2026-04-04T16:35:57.707049467Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -21,7 +21,7 @@ wheels = [
 
 [[package]]
 name = "bose-soundtouch"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
